@@ -63,11 +63,20 @@ public class Application {
     }
 
     private static void runWithRefer() {
+        // ReferenceConfig: 服务引用的配置信息, 通过泛型传递服务对外暴露的接口
         ReferenceConfig<DemoService> reference = new ReferenceConfig<>();
+        // consumer本质上也属于一个服务, 进行应用服务相关配置
         reference.setApplication(new ApplicationConfig("dubbo-demo-api-consumer"));
+        // 注册中心相关配置
         reference.setRegistry(new RegistryConfig("zookeeper://127.0.0.1:2181"));
+        // 元数据上报相关配置
         reference.setMetadataReportConfig(new MetadataReportConfig("zookeeper://127.0.0.1:2181"));
+        // 明确设置服务接口的实现
         reference.setInterface(DemoService.class);
+
+        // 通过 ReferenceConfig 的 get 方法
+        // 获取动态代理生成的服务接口, 对服务拉取、网络通信等细节进行代理
+        // 调用该接口, 底层必然会去调用 provider 的服务接口
         DemoService service = reference.get();
         String message = service.sayHello("dubbo");
         System.out.println(message);

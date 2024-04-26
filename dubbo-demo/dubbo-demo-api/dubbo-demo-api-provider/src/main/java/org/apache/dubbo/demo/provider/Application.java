@@ -55,12 +55,20 @@ public class Application {
     }
 
     private static void startWithExport() throws InterruptedException {
+        // ServiceConfig: 针对 Dubbo 服务的配置信息, 接收服务接口实现的泛型(DemoServiceImpl)
         ServiceConfig<DemoServiceImpl> service = new ServiceConfig<>();
+        // 设置服务暴露出去的接口
         service.setInterface(DemoService.class);
+        // 进一步明确设置服务接口的实现
         service.setRef(new DemoServiceImpl());
+        // 应用服务相关配置
         service.setApplication(new ApplicationConfig("dubbo-demo-api-provider"));
+        // 注册中心相关配置
         service.setRegistry(new RegistryConfig("zookeeper://127.0.0.1:2181"));
+        // 元数据上报相关配置
         service.setMetadataReportConfig(new MetadataReportConfig("zookeeper://127.0.0.1:2181"));
+        // 推断: 会开启一个 Socket 连接
+        // 调用方需要与被调用方建立连接, 通过指定协议进行网络通信, 执行 rpc 调用
         service.export();
 
         System.out.println("dubbo service started");
