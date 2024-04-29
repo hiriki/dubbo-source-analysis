@@ -214,6 +214,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         }
 
         // ensure start module, compatible with old api usage
+        // 部署组件: 启动 dubbo 服务所需的各个组件, 进行初始化准备工作
         getScopeModel().getDeployer().start();
 
         synchronized (this) {
@@ -222,14 +223,18 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             }
 
             if (!this.isRefreshed()) {
+                // 执行服务实例的刷新操作
                 this.refresh();
             }
             if (this.shouldExport()) {
+                // 执行服务实例的初始化操作
                 this.init();
 
                 if (shouldDelay()) {
+                    // 延迟发布
                     doDelayExport();
                 } else {
+                    // 核心的服务发布源码流程
                     doExport();
                 }
             }

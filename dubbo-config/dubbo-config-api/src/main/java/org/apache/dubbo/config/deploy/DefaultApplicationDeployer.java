@@ -174,21 +174,65 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
         if (initialized) {
             return;
         }
+
         // Ensure that the initialization is completed when concurrent calls
+
+        /**
+         *  ApplicationDeployer 可能存在并发访问
+         *  但不一定是多个线程都在访问 initialize() 这个方法
+         *  别的线程可能去访问 ApplicationDeployer 的其它方法
+         *  但有些方法必须保证 ApplicationDeployer 已经执行 initialize() 方法进行初始化
+         *  此时加锁 startLock
+         *  其它线程可以 synchronized (startLock) 来确保ApplicationDeployer已经初始化
+         */
         synchronized (startLock) {
             if (initialized) {
                 return;
             }
+
             // register shutdown hook
+            /**
+             *  注册钩子
+             */
             registerShutdownHook();
 
+            /**
+             *  启动配置中心, 通过配置获取
+             *  The sequence would be: SystemConfiguration(JVM参数) -> EnvironmentConfiguration(环境变量) -> AppExternalConfiguration -> ExternalConfiguration  -> AppConfiguration -> AbstractConfig -> PropertiesConfiguration
+             *  默认配置前缀: dubbo.config-center
+             *  configCenterConfig#refresh 中设置
+             *  如果没有配置, 默认设置如下:
+             *  configFile = dubbo.properties
+             *  namespace = dubbo
+             *  group = dubbo
+             *  timeout = 30000
+             */
             startConfigCenter();
 
+            /**
+             *  加载应用配置
+             *  application config has load before starting config center
+             *  load dubbo.applications.xxx
+             *  load dubbo.monitors.xxx
+             *  load dubbo.metrics.xxx
+
+             *  load multiple config types:
+             *  load dubbo.protocols.xxx
+             *  load dubbo.registries.xxx
+             *  load dubbo.metadata-report.xxx
+             */
             loadApplicationConfigs();
 
+            /**
+             *  初始化各个 ModuleModel
+             */
             initModuleDeployers();
 
             // @since 2.7.8
+            /**
+             *  启动元数据中心
+             *  metadata-report
+             */
             startMetadataCenter();
 
             initialized = true;
@@ -230,6 +274,7 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
         // load config centers
         configManager.loadConfigsOfTypeFromProps(ConfigCenterConfig.class);
 
+        // 如果有必要使用注册中心作为配置中心
         useRegistryAsConfigCenterIfNecessary();
 
         // check Config Center
@@ -237,6 +282,9 @@ public class DefaultApplicationDeployer extends AbstractDeployer<ApplicationMode
         if (CollectionUtils.isEmpty(configCenters)) {
             ConfigCenterConfig configCenterConfig = new ConfigCenterConfig();
             configCenterConfig.setScopeModel(applicationModel);
+            /**
+             *  刷新后检查配置, 如果为空设置为默认的配置
+             */
             configCenterConfig.refresh();
             ConfigValidationUtils.validateConfigCenterConfig(configCenterConfig);
             if (configCenterConfig.isValid()) {
