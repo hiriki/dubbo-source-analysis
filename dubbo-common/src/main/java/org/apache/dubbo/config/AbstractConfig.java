@@ -701,6 +701,12 @@ public abstract class AbstractConfig implements Serializable {
             assignProperties(this, environment, subProperties, subPropsConfiguration);
 
             // process extra refresh of subclass, e.g. refresh method configs
+            /**
+             *  preferredPrefix = dubbo.service.org.apache.dubbo.demo.DemoService
+             *  dubbo.service 代表 dubbo 服务名称的固定前缀
+             *  后面跟上服务接口的全类名 org.apache.dubbo.demo.DemoService
+             */
+            //
             processExtraRefresh(preferredPrefix, subPropsConfiguration);
 
         } catch (Exception e) {

@@ -306,6 +306,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
 
     @Override
     protected void processExtraRefresh(String preferredPrefix, InmemoryConfiguration subPropsConfiguration) {
+        /**
+         *  通过接口全类名反射获取接口类以及对应的方法
+         *  方法也就是对外暴露的接口服务
+         */
         if (StringUtils.hasText(interfaceName)) {
             Class<?> interfaceClass;
             try {
@@ -328,6 +332,10 @@ public abstract class AbstractInterfaceConfig extends AbstractMethodConfig {
                 return;
             }
 
+            /**
+             * 接口方法配置 MethodConfig
+             * 接口参数配置 ArgumentConfig
+             */
             for (Method method : methods) {
                 if (ConfigurationUtils.hasSubProperties(configProperties, method.getName())) {
                     MethodConfig methodConfig = getMethodByName(method.getName());
