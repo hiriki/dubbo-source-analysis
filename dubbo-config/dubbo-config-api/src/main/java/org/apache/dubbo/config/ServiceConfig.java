@@ -239,7 +239,20 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                     // 延迟发布
                     doDelayExport();
                 } else {
-                    // 核心的服务发布源码流程
+                    /**
+                     *  核心的服务发布源码流程
+                     *  1. 发布服务
+                     *      Export dubbo service org.apache.dubbo.metadata.MetadataService to local registry url
+                     *      Export dubbo service org.apache.dubbo.metadata.MetadataService to url dubbo://192.168.64.1:20880
+                     *  2. 启动Netty服务器, 监听网络连接并处理
+                     *      Start NettyServer bind /0.0.0.0:20880, export /192.168.64.1:20880
+                     *  3. 注册服务
+                     *      Register dubbo service org.apache.dubbo.demo.DemoService url dubbo://192.168.64.1:20880
+                     *  4. 服务发现相关处理
+                     *      Loaded registry cache file
+                     *  5. 服务实例上报 MetadataReport
+                     *  6. JVM关闭时, 逆向处理释放资源
+                     */
                     doExport();
                 }
             }
