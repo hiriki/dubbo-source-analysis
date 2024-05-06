@@ -41,10 +41,19 @@ public class ModuleModel extends ScopeModel {
 
     public static final String NAME = "ModuleModel";
 
+    /**
+     *  推测: ApplicationModel, 子门面, 其中也封装了其他组件
+     */
     private final ApplicationModel applicationModel;
     private ModuleEnvironment moduleEnvironment;
+    /**
+     *  关键组件: 服务仓储
+     */
     private ModuleServiceRepository serviceRepository;
     private ModuleConfigManager moduleConfigManager;
+    /**
+     * Module Deployer
+     */
     private ModuleDeployer deployer;
 
     public ModuleModel(ApplicationModel applicationModel) {

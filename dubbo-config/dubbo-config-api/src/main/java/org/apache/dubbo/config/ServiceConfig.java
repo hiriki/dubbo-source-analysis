@@ -387,9 +387,22 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
+        /**
+         *  ScopeModel: ModuleModel
+         *  各个组件集中在 ScopeModel 中, ScopeModel 类似于门面模式
+
+         *  ScopeModel、ModuleModel、FrameworkModel 多个 Model 组成体系, 包含各种组件
+         */
+
+        /**
+         *  ServiceRepository: Dubbo 服务数据仓储组件
+         *  一个系统可以注册多个 Dubbo 服务, 一个 Dubbo 服务本质上就是一个接口及其实现类
+         */
         ModuleServiceRepository repository = getScopeModel().getServiceRepository();
         ServiceDescriptor serviceDescriptor;
         final boolean serverService = ref instanceof ServerService;
+
+        // 向 ServiceRepository 服务数据仓储组件注册当前服务
         if (serverService) {
             serviceDescriptor = ((ServerService) ref).getServiceDescriptor();
             repository.registerService(serviceDescriptor);
